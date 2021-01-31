@@ -40,8 +40,8 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
 	private Long fpsCounter = 0L;
 	/** stocke la valeur du compteur lors du dernier timer */
 	private Long lastFps = 0L;
-	/** On calcule les FPS moyen de l'application sur 12 minutes **/
-	private Long[] lastFpsArray = new Long[720];
+	/** On calcule les FPS moyen de l'application sur 10 minutes **/
+	private Long[] lastFpsArray = new Long[600];
 	private int lastFpsArraySize = 0;
 	private int warmup = 0;
 
@@ -114,7 +114,6 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
 	 */
 	@Override
 	public void init() {
-		System.out.println("on initialise PaintingAnts");
 		URL lFileName;
 		URLClassLoader urlLoader = (URLClassLoader) this.getClass().getClassLoader();
 
@@ -459,7 +458,6 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.out.println("on run PaintingAnts");
 		// System.out.println(this.getName()+ ":run()");
 
 		int i;
@@ -509,7 +507,6 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
 	 */
 	@Override
 	public void start() {
-		System.out.println("on start PaintingAnts");
 		// System.out.println(this.getName()+ ":start()");
 		mColony = new CColonie(mColonie, this);
 		mThreadColony = new Thread(mColony);
@@ -555,9 +552,11 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
 	}
 
 	/**
-	 * update Fourmis per second et calcule la moyenne des 60 dernières FPS affichées
+	 * update Fourmis per second et calcule la moyenne des 600 dernières FPS affichées
 	 */
 	private synchronized void updateFPS() {
+		// On fait d'abord tourner le programme "à vide" afin de ne pas relever 
+		// de quelconques interferences liées au démarrage de l'application.
 		if (warmup == 0)
 		{
 			lastFpsArraySize++;
@@ -567,11 +566,12 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
 				lastFpsArraySize = 0;
 			}
 		}
+		// Puis on commence par sauvegarder tout les relevés de FPS afin d'en faire la moyenne plus tard
 		else 
 		{
 			lastFpsArray[lastFpsArraySize] = fpsCounter;
 			lastFpsArraySize++;
-			if (lastFpsArraySize == 720)
+			if (lastFpsArraySize == 600)
 			{
 				System.out.println(getAverage(lastFpsArray, lastFpsArraySize));
 				lastFpsArraySize = 0;
